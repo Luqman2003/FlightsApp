@@ -32,6 +32,7 @@ public class Query extends QueryAbstract {
   public void clearTables() {
     try {
       // TODO: YOUR CODE HERE
+
     } catch (Exception e) {
       e.printStackTrace();
     }
