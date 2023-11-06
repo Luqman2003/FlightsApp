@@ -20,19 +20,19 @@ public class Query extends QueryAbstract {
   // Instance variables
   //
 
-
   protected Query() throws SQLException, IOException {
     prepareStatements();
   }
 
   /**
    * Clear the data in any custom tables created.
-   * 
+   *
    * WARNING! Do not drop any tables and do not clear the flights table.
    */
   public void clearTables() {
     try {
       // TODO: YOUR CODE HERE
+
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -60,12 +60,15 @@ public class Query extends QueryAbstract {
   }
 
   /* See QueryAbstract.java for javadoc */
-  public String transaction_search(String originCity, String destinationCity, 
-                                   boolean directFlight, int dayOfMonth,
-                                   int numberOfItineraries) {
-    // WARNING: the below code is insecure (it's susceptible to SQL injection attacks) AND only
-    // handles searches for direct flights.  We are providing it *only* as an example of how
-    // to use JDBC; you are required to replace it with your own secure implementation.
+  public String transaction_search(String originCity, String destinationCity,
+      boolean directFlight, int dayOfMonth,
+      int numberOfItineraries) {
+    // WARNING: the below code is insecure (it's susceptible to SQL injection
+    // attacks) AND only
+    // handles searches for direct flights. We are providing it *only* as an example
+    // of how
+    // to use JDBC; you are required to replace it with your own secure
+    // implementation.
     //
     // TODO: YOUR CODE HERE
 
@@ -74,10 +77,10 @@ public class Query extends QueryAbstract {
     try {
       // one hop itineraries
       String unsafeSearchSQL = "SELECT TOP (" + numberOfItineraries
-        + ") day_of_month,carrier_id,flight_num,origin_city,dest_city,actual_time,capacity,price "
-        + "FROM Flights " + "WHERE origin_city = \'" + originCity + "\' AND dest_city = \'"
-        + destinationCity + "\' AND day_of_month =  " + dayOfMonth + " "
-        + "ORDER BY actual_time ASC";
+          + ") day_of_month,carrier_id,flight_num,origin_city,dest_city,actual_time,capacity,price "
+          + "FROM Flights " + "WHERE origin_city = \'" + originCity + "\' AND dest_city = \'"
+          + destinationCity + "\' AND day_of_month =  " + dayOfMonth + " "
+          + "ORDER BY actual_time ASC";
 
       Statement searchStatement = conn.createStatement();
       ResultSet oneHopResults = searchStatement.executeQuery(unsafeSearchSQL);
@@ -93,9 +96,9 @@ public class Query extends QueryAbstract {
         int result_price = oneHopResults.getInt("price");
 
         sb.append("Day: " + result_dayOfMonth + " Carrier: " + result_carrierId + " Number: "
-                  + result_flightNum + " Origin: " + result_originCity + " Destination: "
-                  + result_destCity + " Duration: " + result_time + " Capacity: " + result_capacity
-                  + " Price: " + result_price + "\n");
+            + result_flightNum + " Origin: " + result_originCity + " Destination: "
+            + result_destCity + " Duration: " + result_time + " Capacity: " + result_capacity
+            + " Price: " + result_price + "\n");
       }
       oneHopResults.close();
     } catch (SQLException e) {
@@ -162,7 +165,7 @@ public class Query extends QueryAbstract {
     public int price;
 
     Flight(int id, int day, String carrier, String fnum, String origin, String dest, int tm,
-           int cap, int pri) {
+        int cap, int pri) {
       fid = id;
       dayOfMonth = day;
       carrierId = carrier;
@@ -173,7 +176,7 @@ public class Query extends QueryAbstract {
       capacity = cap;
       price = pri;
     }
-    
+
     @Override
     public String toString() {
       return "ID: " + fid + " Day: " + dayOfMonth + " Carrier: " + carrierId + " Number: "
