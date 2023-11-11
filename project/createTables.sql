@@ -43,9 +43,10 @@
 --   );
 
 CREATE TABLE Users_lshibly (
-  UserID int PRIMARY KEY,
+  UserID VARCHAR(255) PRIMARY KEY,
   Username VARCHAR(255),
   Password VARCHAR(255),
+  LoggedIn int,
   Balance REAL
 );
 

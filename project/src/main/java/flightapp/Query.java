@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.UUID;
 
 /**
  * Runs queries against a back-end database
@@ -32,7 +33,11 @@ public class Query extends QueryAbstract {
   public void clearTables() {
     try {
       // TODO: YOUR CODE HERE
-
+      String[] tables = { "Reservations", "Users" };
+      for (String s : tables) {
+        Statement stmt = conn.createStatement();
+        stmt.executeUpdate("DELETE FROM " + s + ";");
+      }
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -49,13 +54,63 @@ public class Query extends QueryAbstract {
 
   /* See QueryAbstract.java for javadoc */
   public String transaction_login(String username, String password) {
-    // TODO: YOUR CODE HERE
-    return "Login failed\n";
+    try {
+      String usersQuery = "SELECT * FROM Users WHERE Username = \'" + username + "\' AND Password = \'"
+          + password + "\';";
+      Statement usersStatement = conn.createStatement();
+      ResultSet usersResults = usersStatement.executeQuery(usersQuery);
+      if (usersResults.next()) {
+        String loggedInQuery = "SELECT LoggedIn FROM Users WHERE Username = \'" + username + "\' AND Password = \'"
+            + password + "\';";
+        Statement loggedInStatement = conn.createStatement();
+        ResultSet loggedInResult = loggedInStatement.executeQuery(loggedInQuery);
+        // int result_dayOfMonth = oneHopResults.getInt("day_of_month");
+        int loggedIn = loggedInResult.getInt("LoggedIn");
+        loggedInResult.close();
+        usersResults.close();
+        if (loggedIn == 1) {
+          return "User already logged in\n";
+        } else {
+          // change the LoggedIn field
+          String loginUpdateQuery = "UPDATE Users SET LoggedIn = 1 WHERE Username = \'" + username
+              + "\' AND Password = \';"
+              + password + "\'";
+          Statement updateLoginStatement = conn.createStatement();
+          updateLoginStatement.executeUpdate(loginUpdateQuery);
+          return "Logged in as " + username + '\n';
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return "Login failed \n";
   }
 
   /* See QueryAbstract.java for javadoc */
   public String transaction_createCustomer(String username, String password, int initAmount) {
-    // TODO: YOUR CODE HERE
+    if (initAmount < 0) {
+      return "Failed to create user\n";
+    }
+    try {
+      String uuid = UUID.randomUUID().toString();
+      String insertQuery = "INSERT INTO Users (UserID, Username, Password) VALUES (?, ?, ?);";
+      PreparedStatement preparedStatement = conn.prepareStatement(insertQuery);
+      preparedStatement.setString(1, uuid);
+      preparedStatement.setString(2, username);
+      preparedStatement.setString(3, password);
+
+      int affectedRows = preparedStatement.executeUpdate();
+
+      if (affectedRows == 0) {
+        throw new SQLException("Creating user failed, no rows affected");
+      }
+
+      return "Created user " + username + "\n";
+
+    } catch (Exception e) {
+      System.out.println("Failed to create user\n");
+      e.printStackTrace();
+    }
     return "Failed to create user\n";
   }
 
