@@ -33,7 +33,7 @@ public class Query extends QueryAbstract {
   public void clearTables() {
     try {
       // TODO: YOUR CODE HERE
-      String[] tables = { "Reservations", "Users" };
+      String[] tables = { "Reservations_lshibly", "Users_lshibly" };
       for (String s : tables) {
         Statement stmt = conn.createStatement();
         stmt.executeUpdate("DELETE FROM " + s + ";");
@@ -55,28 +55,23 @@ public class Query extends QueryAbstract {
   /* See QueryAbstract.java for javadoc */
   public String transaction_login(String username, String password) {
     try {
-      String usersQuery = "SELECT * FROM Users WHERE Username = \'" + username + "\' AND Password = \'"
-          + password + "\';";
-      Statement usersStatement = conn.createStatement();
-      ResultSet usersResults = usersStatement.executeQuery(usersQuery);
+      String usersQuery = "SELECT * FROM Users_lshibly WHERE Username = ? AND Password = ?;";
+      PreparedStatement usersStatement = conn.prepareStatement(usersQuery);
+      usersStatement.setString(1, username);
+      usersStatement.setString(2, password);
+      ResultSet usersResults = usersStatement.executeQuery();
       if (usersResults.next()) {
-        String loggedInQuery = "SELECT LoggedIn FROM Users WHERE Username = \'" + username + "\' AND Password = \'"
-            + password + "\';";
-        Statement loggedInStatement = conn.createStatement();
-        ResultSet loggedInResult = loggedInStatement.executeQuery(loggedInQuery);
-        // int result_dayOfMonth = oneHopResults.getInt("day_of_month");
-        int loggedIn = loggedInResult.getInt("LoggedIn");
-        loggedInResult.close();
-        usersResults.close();
+        int loggedIn = usersResults.getInt("LoggedIn");
         if (loggedIn == 1) {
+          usersResults.close();
           return "User already logged in\n";
         } else {
           // change the LoggedIn field
-          String loginUpdateQuery = "UPDATE Users SET LoggedIn = 1 WHERE Username = \'" + username
-              + "\' AND Password = \';"
-              + password + "\'";
-          Statement updateLoginStatement = conn.createStatement();
-          updateLoginStatement.executeUpdate(loginUpdateQuery);
+          String loginUpdateQuery = "UPDATE Users_lshibly SET LoggedIn = 1 WHERE Username = ?;";
+          PreparedStatement updateLoginStatement = conn.prepareStatement(loginUpdateQuery);
+          updateLoginStatement.setString(1, username);
+          updateLoginStatement.executeUpdate();
+          usersResults.close();
           return "Logged in as " + username + '\n';
         }
       }
@@ -92,12 +87,10 @@ public class Query extends QueryAbstract {
       return "Failed to create user\n";
     }
     try {
-      String uuid = UUID.randomUUID().toString();
-      String insertQuery = "INSERT INTO Users (UserID, Username, Password) VALUES (?, ?, ?);";
+      String insertQuery = "INSERT INTO Users_lshibly (Username, Password) VALUES (?, ?);";
       PreparedStatement preparedStatement = conn.prepareStatement(insertQuery);
-      preparedStatement.setString(1, uuid);
-      preparedStatement.setString(2, username);
-      preparedStatement.setString(3, password);
+      preparedStatement.setString(1, username);
+      preparedStatement.setString(2, password);
 
       int affectedRows = preparedStatement.executeUpdate();
 
@@ -127,21 +120,22 @@ public class Query extends QueryAbstract {
       PreparedStatement preparedStatement;
 
       if (directFlight) {
-        searchString = "SELECT TOP (?) day_of_month, carrier_id, flight_num, fid, "
-            + "origin_city, dest_city, actual_time, capacity, price FROM Flights WHERE "
-            + "origin_city = (?) AND dest_city = (?) AND day_of_month = (?) AND canceled = 0 ORDER BY "
-            + "actual_time ASC";
+        searchString = "SELECT TOP (?) fid AS fid1, NULL AS fid2, actual_time AS total_time "
+            + "FROM FLIGHTS "
+            + "WHERE origin_city = ? AND dest_city = ? AND day_of_month = ? AND canceled = 0 "
+            + "ORDER BY total_time ASC";
 
         preparedStatement = conn.prepareStatement(searchString);
 
         preparedStatement.setInt(1, numberOfItineraries);
         preparedStatement.setString(2, originCity);
-        preparedStatement.setInt(3, dayOfMonth);
+        preparedStatement.setString(3, destinationCity);
+        preparedStatement.setInt(4, dayOfMonth);
 
       } else {
-        searchString = "SELECT TOP (?) * FROM ( " +
-            "SELECT f1.day_of_month, "
-            + "f1.fid AS fid1, f2.fid AS fid2 "
+        searchString = "SELECT TOP (?) fid1, fid2, total_time FROM ("
+            + "SELECT "
+            + "f1.fid AS fid1, f2.fid AS fid2, f1.actual_time + f2.actual_time AS total_time "
             + "FROM FLIGHTS AS f1 "
             + "JOIN FLIGHTS AS f2 ON f1.dest_city = f2.origin_city AND f1.day_of_month = f2.day_of_month "
             + "WHERE f1.origin_city = ? AND f2.dest_city = ? "
@@ -149,10 +143,10 @@ public class Query extends QueryAbstract {
             + "AND f1.canceled = 0 AND f2.canceled = 0 "
             + "UNION "
             + "SELECT "
-            + "fid AS fid1, NULL AS fid2, "
+            + "fid AS fid1, NULL AS fid2, actual_time AS total_time "
             + "FROM FLIGHTS "
-            + "WHERE origin_city = ? AND dest_city = ? AND day_of_month = ? AND canceled = 0)"
-            + "AS combined_results ORDER BY total_time ASC";
+            + "WHERE origin_city = ? AND dest_city = ? AND day_of_month = ? AND canceled = 0"
+            + ") AS combined_results ORDER BY total_time ASC";
 
         preparedStatement = conn.prepareStatement(searchString);
 
@@ -177,15 +171,22 @@ public class Query extends QueryAbstract {
       while (results.next()) {
         int f1_fid = results.getInt("fid1");
         int f2_fid = results.getInt("fid2");
-
-        if (!directFlight) {
-          sb.append("Itinerary " + counter + ": 2 flight(s), " + results.getInt("total_time") + " minutes\n");
-          Flight f1 = new Flight(f1_fid, dayOfMonth, getCarrierId(f1_fid),
-              getFlightNum(f1_fid), originCity, getOriginCity(f1_fid),
-              getTime(f1_fid), checkFlightCapacity(f1_fid),
-              getPrice(f1_fid));
+        Flight f1 = new Flight(f1_fid, dayOfMonth, getCarrierId(f1_fid),
+            getFlightNum(f1_fid), originCity, getDestCity(f1_fid),
+            getTime(f1_fid), checkFlightCapacity(f1_fid),
+            getPrice(f1_fid));
+        int time = results.getInt("total_time");
+        if (f2_fid == 0) {
+          sb.append("Itinerary " + counter + ": 1 flight(s), " + time + " minutes\n");
+          sb.append(f1.toString() + '\n');
         } else {
-          sb.append("Itinerary " + counter + ": 1 flight(s), " + results.getInt("actual_time") + " minutes\n");
+          sb.append("Itinerary " + counter + ": 2 flight(s), " + time + " minutes\n");
+          Flight f2 = new Flight(f2_fid, dayOfMonth, getCarrierId(f2_fid),
+              getFlightNum(f2_fid), getOriginCity(f2_fid), destinationCity,
+              getTime(f2_fid), checkFlightCapacity(f2_fid),
+              getPrice(f2_fid));
+          sb.append(f1.toString() + '\n');
+          sb.append(f2.toString() + '\n');
         }
 
         counter++;
@@ -213,6 +214,7 @@ public class Query extends QueryAbstract {
       String priceQuery = "SELECT price FROM Flights WHERE fid = " + fid + ";";
       Statement priceStatement = conn.createStatement();
       ResultSet priceResult = priceStatement.executeQuery(priceQuery);
+      priceResult.next();
       int price = priceResult.getInt("price");
       priceResult.close();
       return price;
@@ -233,8 +235,30 @@ public class Query extends QueryAbstract {
       String originCityQuery = "SELECT origin_city FROM Flights WHERE fid = " + fid + ";";
       Statement originCityStatement = conn.createStatement();
       ResultSet originCityResult = originCityStatement.executeQuery(originCityQuery);
+      originCityResult.next();
       String originCity = originCityResult.getString("origin_city");
       originCityResult.close();
+      return originCity;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  /**
+   * Searches for the specific flight and gives the origin city for that flight
+   *
+   * @param fid the flight id
+   * @return the origin city for that flight
+   */
+  private String getDestCity(int fid) {
+    try {
+      String destCityQuery = "SELECT dest_city FROM Flights WHERE fid = " + fid + ";";
+      Statement destCityStatement = conn.createStatement();
+      ResultSet destCityResult = destCityStatement.executeQuery(destCityQuery);
+      destCityResult.next();
+      String originCity = destCityResult.getString("dest_city");
+      destCityResult.close();
       return originCity;
     } catch (Exception e) {
       e.printStackTrace();
@@ -250,9 +274,11 @@ public class Query extends QueryAbstract {
    */
   private String getCarrierId(int fid) {
     try {
-      String carrierIdQuery = "SELECT carrier_id FROM Flights WHERE fid = " + fid + ";";
-      Statement carrierIdStatement = conn.createStatement();
-      ResultSet carrierIdResult = carrierIdStatement.executeQuery(carrierIdQuery);
+      String carrierIdQuery = "SELECT carrier_id FROM Flights WHERE fid = ?;";
+      PreparedStatement carrierIdStatement = conn.prepareStatement(carrierIdQuery);
+      carrierIdStatement.setInt(1, fid);
+      ResultSet carrierIdResult = carrierIdStatement.executeQuery();
+      carrierIdResult.next();
       String carrierId = carrierIdResult.getString("carrier_id");
       carrierIdResult.close();
       return carrierId;
@@ -260,6 +286,7 @@ public class Query extends QueryAbstract {
       e.printStackTrace();
     }
     return null;
+
   }
 
   /**
@@ -273,6 +300,7 @@ public class Query extends QueryAbstract {
       String flightNumQuery = "SELECT flight_num FROM Flights WHERE fid = " + fid + ";";
       Statement flightNumStatement = conn.createStatement();
       ResultSet flightNumResult = flightNumStatement.executeQuery(flightNumQuery);
+      flightNumResult.next();
       String flightNum = flightNumResult.getString("flight_num");
       flightNumResult.close();
       return flightNum;
@@ -293,6 +321,7 @@ public class Query extends QueryAbstract {
       String timeQuery = "SELECT actual_time FROM Flights WHERE fid = " + fid + ";";
       Statement timeStatement = conn.createStatement();
       ResultSet timeResult = timeStatement.executeQuery(timeQuery);
+      timeResult.next();
       int time = timeResult.getInt("actual_time");
       timeResult.close();
       return time;
