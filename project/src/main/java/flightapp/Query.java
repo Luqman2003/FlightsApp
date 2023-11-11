@@ -118,49 +118,188 @@ public class Query extends QueryAbstract {
   public String transaction_search(String originCity, String destinationCity,
       boolean directFlight, int dayOfMonth,
       int numberOfItineraries) {
-    // WARNING: the below code is insecure (it's susceptible to SQL injection
-    // attacks) AND only
-    // handles searches for direct flights. We are providing it *only* as an example
-    // of how
-    // to use JDBC; you are required to replace it with your own secure
-    // implementation.
-    //
-    // TODO: YOUR CODE HERE
 
     StringBuffer sb = new StringBuffer();
 
     try {
-      // one hop itineraries
-      String unsafeSearchSQL = "SELECT TOP (" + numberOfItineraries
-          + ") day_of_month,carrier_id,flight_num,origin_city,dest_city,actual_time,capacity,price "
-          + "FROM Flights " + "WHERE origin_city = \'" + originCity + "\' AND dest_city = \'"
-          + destinationCity + "\' AND day_of_month =  " + dayOfMonth + " "
-          + "ORDER BY actual_time ASC";
+      String searchString;
 
-      Statement searchStatement = conn.createStatement();
-      ResultSet oneHopResults = searchStatement.executeQuery(unsafeSearchSQL);
+      PreparedStatement preparedStatement;
 
-      while (oneHopResults.next()) {
-        int result_dayOfMonth = oneHopResults.getInt("day_of_month");
-        String result_carrierId = oneHopResults.getString("carrier_id");
-        String result_flightNum = oneHopResults.getString("flight_num");
-        String result_originCity = oneHopResults.getString("origin_city");
-        String result_destCity = oneHopResults.getString("dest_city");
-        int result_time = oneHopResults.getInt("actual_time");
-        int result_capacity = oneHopResults.getInt("capacity");
-        int result_price = oneHopResults.getInt("price");
+      if (directFlight) {
+        searchString = "SELECT TOP (?) day_of_month, carrier_id, flight_num, fid, "
+            + "origin_city, dest_city, actual_time, capacity, price FROM Flights WHERE "
+            + "origin_city = (?) AND dest_city = (?) AND day_of_month = (?) AND canceled = 0 ORDER BY "
+            + "actual_time ASC";
 
-        sb.append("Day: " + result_dayOfMonth + " Carrier: " + result_carrierId + " Number: "
-            + result_flightNum + " Origin: " + result_originCity + " Destination: "
-            + result_destCity + " Duration: " + result_time + " Capacity: " + result_capacity
-            + " Price: " + result_price + "\n");
+        preparedStatement = conn.prepareStatement(searchString);
+
+        preparedStatement.setInt(1, numberOfItineraries);
+        preparedStatement.setString(2, originCity);
+        preparedStatement.setInt(3, dayOfMonth);
+
+      } else {
+        searchString = "SELECT TOP (?) * FROM ( " +
+            "SELECT f1.day_of_month, "
+            + "f1.fid AS fid1, f2.fid AS fid2 "
+            + "FROM FLIGHTS AS f1 "
+            + "JOIN FLIGHTS AS f2 ON f1.dest_city = f2.origin_city AND f1.day_of_month = f2.day_of_month "
+            + "WHERE f1.origin_city = ? AND f2.dest_city = ? "
+            + "AND f1.day_of_month = ? "
+            + "AND f1.canceled = 0 AND f2.canceled = 0 "
+            + "UNION "
+            + "SELECT "
+            + "fid AS fid1, NULL AS fid2, "
+            + "FROM FLIGHTS "
+            + "WHERE origin_city = ? AND dest_city = ? AND day_of_month = ? AND canceled = 0)"
+            + "AS combined_results ORDER BY total_time ASC";
+
+        preparedStatement = conn.prepareStatement(searchString);
+
+        preparedStatement.setInt(1, numberOfItineraries);
+        preparedStatement.setString(2, originCity);
+        preparedStatement.setString(3, destinationCity);
+        preparedStatement.setInt(4, dayOfMonth);
+
+        preparedStatement.setString(5, originCity);
+        preparedStatement.setString(6, destinationCity);
+        preparedStatement.setInt(7, dayOfMonth);
       }
-      oneHopResults.close();
+
+      ResultSet results = preparedStatement.executeQuery();
+
+      if (!results.isBeforeFirst()) {
+        return "No flights match your selection\n";
+      }
+
+      int counter = 0;
+
+      while (results.next()) {
+        int f1_fid = results.getInt("fid1");
+        int f2_fid = results.getInt("fid2");
+
+        if (!directFlight) {
+          sb.append("Itinerary " + counter + ": 2 flight(s), " + results.getInt("total_time") + " minutes\n");
+          Flight f1 = new Flight(f1_fid, dayOfMonth, getCarrierId(f1_fid),
+              getFlightNum(f1_fid), originCity, getOriginCity(f1_fid),
+              getTime(f1_fid), checkFlightCapacity(f1_fid),
+              getPrice(f1_fid));
+        } else {
+          sb.append("Itinerary " + counter + ": 1 flight(s), " + results.getInt("actual_time") + " minutes\n");
+        }
+
+        counter++;
+
+      }
+
+      results.close();
+
     } catch (SQLException e) {
       e.printStackTrace();
+      return "Failed to search\n";
     }
 
     return sb.toString();
+  }
+
+  /**
+   * Searches for the flight and gives the price for that flight
+   *
+   * @param fid the flight id
+   * @return the price for that flight
+   */
+  private int getPrice(int fid) {
+    try {
+      String priceQuery = "SELECT price FROM Flights WHERE fid = " + fid + ";";
+      Statement priceStatement = conn.createStatement();
+      ResultSet priceResult = priceStatement.executeQuery(priceQuery);
+      int price = priceResult.getInt("price");
+      priceResult.close();
+      return price;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return -1;
+  }
+
+  /**
+   * Searches for the specific flight and gives the origin city for that flight
+   *
+   * @param fid the flight id
+   * @return the origin city for that flight
+   */
+  private String getOriginCity(int fid) {
+    try {
+      String originCityQuery = "SELECT origin_city FROM Flights WHERE fid = " + fid + ";";
+      Statement originCityStatement = conn.createStatement();
+      ResultSet originCityResult = originCityStatement.executeQuery(originCityQuery);
+      String originCity = originCityResult.getString("origin_city");
+      originCityResult.close();
+      return originCity;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  /**
+   * Searches for the specific flight and gives the carrier for that flight
+   *
+   * @param fid the flight id
+   * @return the carrier for that flight
+   */
+  private String getCarrierId(int fid) {
+    try {
+      String carrierIdQuery = "SELECT carrier_id FROM Flights WHERE fid = " + fid + ";";
+      Statement carrierIdStatement = conn.createStatement();
+      ResultSet carrierIdResult = carrierIdStatement.executeQuery(carrierIdQuery);
+      String carrierId = carrierIdResult.getString("carrier_id");
+      carrierIdResult.close();
+      return carrierId;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  /**
+   * Searches for the specific flight and gives the flight_num
+   *
+   * @param fid the flight id
+   * @return the flight_num of the flight
+   */
+  private String getFlightNum(int fid) {
+    try {
+      String flightNumQuery = "SELECT flight_num FROM Flights WHERE fid = " + fid + ";";
+      Statement flightNumStatement = conn.createStatement();
+      ResultSet flightNumResult = flightNumStatement.executeQuery(flightNumQuery);
+      String flightNum = flightNumResult.getString("flight_num");
+      flightNumResult.close();
+      return flightNum;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  /**
+   * Searches for the specific flight and gives the total time the flight takes
+   *
+   * @param fid the flight id
+   * @return the total time the flight takes
+   */
+  private int getTime(int fid) {
+    try {
+      String timeQuery = "SELECT actual_time FROM Flights WHERE fid = " + fid + ";";
+      Statement timeStatement = conn.createStatement();
+      ResultSet timeResult = timeStatement.executeQuery(timeQuery);
+      int time = timeResult.getInt("actual_time");
+      timeResult.close();
+      return time;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return -1;
   }
 
   /* See QueryAbstract.java for javadoc */

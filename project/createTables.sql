@@ -43,8 +43,7 @@
 --   );
 
 CREATE TABLE Users_lshibly (
-  UserID VARCHAR(255) PRIMARY KEY,
-  Username VARCHAR(255),
+  Username VARCHAR(255) PRIMARY KEY,
   Password VARCHAR(255),
   LoggedIn int,
   Balance REAL
@@ -52,6 +51,6 @@ CREATE TABLE Users_lshibly (
 
 CREATE TABLE Reservations_lshibly (
   ReservationID int PRIMARY KEY,
-  UserID int REFERENCES Users_lshibly(UserID),
+  Username VARCHAR(255) REFERENCES Users_lshibly(Username),
   Status VARCHAR(20) -- 'Paid' or 'Unpaid'
-)
+);
