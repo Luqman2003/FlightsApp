@@ -1,0 +1,37 @@
+1. What is one thing that you learned?
+    a. I learned how to connect to a SQL server using java (JDBC)
+2. What is one thing that surprised you?
+    b. Just how much code I had to write for the search functionality.
+       I probably didn't do it as cleanly as it could've but it took me a while
+3. What is one question you still have after doing this assignment?
+    c. I still don't quite get the salting and hashing. Are we performing a
+       bitwise operation on the plaintext with the random byte or is it something
+       else?
+
+4. Recall the debugging technique you described in the HW3 writeup. Did you use
+   it or something similar when debugging M1?
+    d. No.
+5. In 1-2 sentences, describe a bug in one of your M1 queries. Then, describe
+   how you noticed the bug and, in 3-4 sentences, how you fixed it. If you
+   answered "yes" above, please descibe a different bug.
+    e. One bug that I encountered was something really stupid in hindsight.
+       I was returning itineraries that had an actual time of 0 which would
+       appear at the beginning of the list, of course. I fixed it by querying
+       over the test cases on the database online, on the azure website.
+       What I found was that I had left out the 'canceled = 0' clause in my
+       query which resulted in flights that were canceled being included in my
+       itinerary search list. By querying over the database itself, it helped
+       me look at columns I needed to filter which made the debugging process
+       simple.
+6. This project demonstrated how application logic can perform transformations
+   on query results (eg, merging direct and indirect itineraries) or on user
+   input (eg, salting and hashing passwords). What other logic would you like
+   to see and/or implement in FlightApp's Java; ie, logic that cannot be done in
+   SQL or by the user?
+    f. I was thinking of users potentially adding preferred carriers to their
+       profile so when you query for flights it can show flights from those
+       carriers.
+7. How many hours did you spend on M0+M1, and how many students (if any!) you
+   collaborated with?
+    g. I spent probably around 12-14 hours on both combined. I didn't work with
+       anyone; individually.

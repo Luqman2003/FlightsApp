@@ -5,7 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.UUID;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Runs queries against a back-end database
@@ -52,9 +55,14 @@ public class Query extends QueryAbstract {
     // TODO: YOUR CODE HERE
   }
 
+  private String currentLoggedInUser = null;
+
   /* See QueryAbstract.java for javadoc */
   public String transaction_login(String username, String password) {
     try {
+      if (currentLoggedInUser != null) {
+        return "User already logged in\n";
+      }
       String usersQuery = "SELECT * FROM Users_lshibly WHERE Username = ? AND Password = ?;";
       PreparedStatement usersStatement = conn.prepareStatement(usersQuery);
       usersStatement.setString(1, username);
@@ -72,13 +80,14 @@ public class Query extends QueryAbstract {
           updateLoginStatement.setString(1, username);
           updateLoginStatement.executeUpdate();
           usersResults.close();
+          currentLoggedInUser = username;
           return "Logged in as " + username + '\n';
         }
       }
     } catch (Exception e) {
       e.printStackTrace();
     }
-    return "Login failed \n";
+    return "Login failed\n";
   }
 
   /* See QueryAbstract.java for javadoc */
@@ -114,86 +123,147 @@ public class Query extends QueryAbstract {
 
     StringBuffer sb = new StringBuffer();
 
+    List<Flight> directFlights = new ArrayList<>();
+    List<List<Flight>> indirectFlightItin = new ArrayList<>();
+
     try {
-      String searchString;
+      String searchString = "SELECT TOP (?) fid AS fid1, NULL AS fid2, actual_time AS total_time "
+          + "FROM FLIGHTS "
+          + "WHERE origin_city = ? AND dest_city = ? AND day_of_month = ? AND canceled = 0 "
+          + "ORDER BY total_time ASC";
+      PreparedStatement preparedStatement = conn.prepareStatement(searchString);
+      preparedStatement.setInt(1, numberOfItineraries);
+      preparedStatement.setString(2, originCity);
+      preparedStatement.setString(3, destinationCity);
+      preparedStatement.setInt(4, dayOfMonth);
 
-      PreparedStatement preparedStatement;
+      ResultSet flightSet = preparedStatement.executeQuery();
 
-      if (directFlight) {
-        searchString = "SELECT TOP (?) fid AS fid1, NULL AS fid2, actual_time AS total_time "
-            + "FROM FLIGHTS "
-            + "WHERE origin_city = ? AND dest_city = ? AND day_of_month = ? AND canceled = 0 "
-            + "ORDER BY total_time ASC";
+      int num = 0;
 
-        preparedStatement = conn.prepareStatement(searchString);
+      while (flightSet.next()) {
+        // populate directFlights
+        int fid = flightSet.getInt("fid1");
+        Flight f = new Flight(fid, dayOfMonth, getCarrierId(fid), getFlightNum(fid), originCity,
+            destinationCity, getTime(fid), checkFlightCapacity(fid), getPrice(fid));
 
-        preparedStatement.setInt(1, numberOfItineraries);
-        preparedStatement.setString(2, originCity);
-        preparedStatement.setString(3, destinationCity);
-        preparedStatement.setInt(4, dayOfMonth);
+        directFlights.add(f);
 
-      } else {
-        searchString = "SELECT TOP (?) fid1, fid2, total_time FROM ("
-            + "SELECT "
-            + "f1.fid AS fid1, f2.fid AS fid2, f1.actual_time + f2.actual_time AS total_time "
-            + "FROM FLIGHTS AS f1 "
-            + "JOIN FLIGHTS AS f2 ON f1.dest_city = f2.origin_city AND f1.day_of_month = f2.day_of_month "
-            + "WHERE f1.origin_city = ? AND f2.dest_city = ? "
-            + "AND f1.day_of_month = ? "
-            + "AND f1.canceled = 0 AND f2.canceled = 0 "
-            + "UNION "
-            + "SELECT "
-            + "fid AS fid1, NULL AS fid2, actual_time AS total_time "
-            + "FROM FLIGHTS "
-            + "WHERE origin_city = ? AND dest_city = ? AND day_of_month = ? AND canceled = 0"
-            + ") AS combined_results ORDER BY total_time ASC";
-
-        preparedStatement = conn.prepareStatement(searchString);
-
-        preparedStatement.setInt(1, numberOfItineraries);
-        preparedStatement.setString(2, originCity);
-        preparedStatement.setString(3, destinationCity);
-        preparedStatement.setInt(4, dayOfMonth);
-
-        preparedStatement.setString(5, originCity);
-        preparedStatement.setString(6, destinationCity);
-        preparedStatement.setInt(7, dayOfMonth);
+        num++;
       }
+      flightSet.close();
 
-      ResultSet results = preparedStatement.executeQuery();
+      if (!directFlight) {
 
-      if (!results.isBeforeFirst()) {
-        return "No flights match your selection\n";
-      }
+        if (num < numberOfItineraries) {
+          System.out.println(directFlights.toString());
+          // this means that we didn't query numberOfItineraries' worth of
+          // itineraries. So now we are querying to indirect flights as well
+          String indirectSearch = "SELECT TOP (?) fid1, fid2, total_time FROM ("
+              + "SELECT "
+              + "f1.fid AS fid1, f2.fid AS fid2, f1.actual_time + f2.actual_time AS total_time "
+              + "FROM FLIGHTS AS f1 "
+              + "JOIN FLIGHTS AS f2 ON f1.dest_city = f2.origin_city AND f1.day_of_month = f2.day_of_month "
+              + "WHERE f1.origin_city = ? AND f2.dest_city = ? "
+              + "AND f1.day_of_month = ? "
+              + "AND f1.canceled = 0 AND f2.canceled = 0) AS combined_results ORDER BY total_time ASC";
 
-      int counter = 0;
+          PreparedStatement indirectStatement = conn.prepareStatement(indirectSearch);
+          indirectStatement.setInt(1, numberOfItineraries - num);
+          indirectStatement.setString(2, originCity);
+          indirectStatement.setString(3, destinationCity);
+          indirectStatement.setInt(4, dayOfMonth);
 
-      while (results.next()) {
-        int f1_fid = results.getInt("fid1");
-        int f2_fid = results.getInt("fid2");
-        Flight f1 = new Flight(f1_fid, dayOfMonth, getCarrierId(f1_fid),
-            getFlightNum(f1_fid), originCity, getDestCity(f1_fid),
-            getTime(f1_fid), checkFlightCapacity(f1_fid),
-            getPrice(f1_fid));
-        int time = results.getInt("total_time");
-        if (f2_fid == 0) {
-          sb.append("Itinerary " + counter + ": 1 flight(s), " + time + " minutes\n");
-          sb.append(f1.toString() + '\n');
+          ResultSet indirectFlightSet = indirectStatement.executeQuery();
+
+          System.out.println("Hello");
+
+          while (indirectFlightSet.next()) {
+            // populate indirectFlightItin
+            int fid1 = indirectFlightSet.getInt("fid1");
+            int fid2 = indirectFlightSet.getInt("fid2");
+            Flight f1 = new Flight(fid1, dayOfMonth, getCarrierId(fid1), getFlightNum(fid1), originCity,
+                getDestCity(fid1), getTime(fid1), checkFlightCapacity(fid1), getPrice(fid1));
+
+            Flight f2 = new Flight(fid2, dayOfMonth, getCarrierId(fid2), getFlightNum(fid2), getDestCity(fid1),
+                destinationCity, getTime(fid2), checkFlightCapacity(fid2), getPrice(fid2));
+
+            List<Flight> temp = new ArrayList<>();
+            temp.add(f1);
+            temp.add(f2);
+
+            indirectFlightItin.add(temp);
+
+          }
+
+          indirectFlightSet.close();
+
+          int i = 0;
+          int j = 0;
+          int counter = 0;
+
+          while (i < directFlights.size() && j < indirectFlightItin.size()) {
+
+            int directFlightTime = directFlights.get(i).time;
+            int indirectFlightTime = indirectFlightItin.get(j).get(0).time
+                + indirectFlightItin.get(j).get(1).time;
+
+            if (directFlightTime < indirectFlightTime) {
+              Flight f1 = directFlights.get(i);
+              sb.append("Itinerary " + counter + ": 1 flight(s), " + directFlightTime
+                  + " minutes\n" + f1.toString() + "\n");
+              i++;
+            } else {
+              Flight f1 = indirectFlightItin.get(j).get(0);
+              Flight f2 = indirectFlightItin.get(j).get(1);
+              sb.append("Itinerary " + counter + ": 2 flight(s), " + indirectFlightTime
+                  + " minutes\n" + f1.toString() + "\n" + f2.toString() + "\n");
+              j++;
+            }
+            counter++;
+          }
+
+          // Handle remaining direct flights
+          while (i < directFlights.size()) {
+            Flight f1 = directFlights.get(i);
+            int directFlightTime = f1.time;
+            sb.append(
+                "Itinerary " + counter + ": 1 flight(s), " + directFlightTime + " minutes\n" + f1.toString() + "\n");
+            i++;
+            counter++;
+          }
+
+          // Handle remaining indirect flights
+          while (j < indirectFlightItin.size()) {
+            Flight f1 = indirectFlightItin.get(j).get(0);
+            Flight f2 = indirectFlightItin.get(j).get(1);
+            int indirectFlightTime = f1.time + f2.time;
+            sb.append("Itinerary " + counter + ": 2 flight(s), " + indirectFlightTime + " minutes\n" + f1.toString()
+                + "\n" + f2.toString() + "\n");
+            j++;
+            counter++;
+          }
+
         } else {
-          sb.append("Itinerary " + counter + ": 2 flight(s), " + time + " minutes\n");
-          Flight f2 = new Flight(f2_fid, dayOfMonth, getCarrierId(f2_fid),
-              getFlightNum(f2_fid), getOriginCity(f2_fid), destinationCity,
-              getTime(f2_fid), checkFlightCapacity(f2_fid),
-              getPrice(f2_fid));
-          sb.append(f1.toString() + '\n');
-          sb.append(f2.toString() + '\n');
+          int itinCounter = 0;
+          for (Flight flight : directFlights) {
+            Flight f = flight;
+            sb.append("Itinerary " + itinCounter + ": 1 flight(s), " + f.time
+                + " minutes\n" + f.toString() + "\n");
+            itinCounter++;
+
+          }
         }
+      } else {
+        int itinCounter = 0;
+        for (Flight flight : directFlights) {
+          Flight f = flight;
+          sb.append("Itinerary " + itinCounter + ": 1 flight(s), " + f.time
+              + " minutes\n" + f.toString() + "\n");
+          itinCounter++;
 
-        counter++;
-
+        }
       }
-
-      results.close();
 
     } catch (SQLException e) {
       e.printStackTrace();
@@ -407,4 +477,12 @@ public class Query extends QueryAbstract {
           + " Capacity: " + capacity + " Price: " + price;
     }
   }
+
+  class FlightComparator implements Comparator<Flight> {
+    @Override
+    public int compare(Flight f1, Flight f2) {
+      return Integer.compare(f1.time, f2.time);
+    }
+  }
+
 }

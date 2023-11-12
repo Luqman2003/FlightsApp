@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="flightapp.FlightServiceTest" time="110.235" tests="5" errors="0" skipped="0" failures="2">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="flightapp.FlightServiceTest" time="123.559" tests="6" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="17"/>
     <property name="test.cases" value="cases/no_transaction/search"/>
@@ -13,7 +13,7 @@
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="user.country" value="US"/>
     <property name="sun.boot.library.path" value="/usr/lib/jvm/java-17-openjdk-17.0.9.0.9-2.el9.x86_64/lib"/>
-    <property name="sun.java.command" value="org.apache.maven.surefire.booter.ForkedBooter /homes/iws/lshibly/cse344/FlightsApp/project/target/surefire 2023-11-11T04-29-15_863-jvmRun1 surefire12596611718699107706tmp surefire_07230942629802754795tmp"/>
+    <property name="sun.java.command" value="org.apache.maven.surefire.booter.ForkedBooter /homes/iws/lshibly/cse344/FlightsApp/project/target/surefire 2023-11-11T18-02-26_169-jvmRun1 surefire1738639726415246037tmp surefire_0402940133449497793tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="/homes/iws/lshibly/cse344/FlightsApp/project/target/test-classes:/homes/iws/lshibly/cse344/FlightsApp/project/target/classes:/homes/iws/lshibly/.m2/repository/junit/junit/4.13/junit-4.13.jar:/homes/iws/lshibly/.m2/repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/homes/iws/lshibly/.m2/repository/com/microsoft/sqlserver/mssql-jdbc/9.2.1.jre11/mssql-jdbc-9.2.1.jre11.jar:/homes/iws/lshibly/.m2/repository/org/mybatis/mybatis/3.5.7/mybatis-3.5.7.jar:/homes/iws/lshibly/.m2/repository/commons-io/commons-io/2.8.0/commons-io-2.8.0.jar:/homes/iws/lshibly/cse344/FlightsApp/project/distributed.jar:"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -52,7 +52,7 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="61.0"/>
   </properties>
-  <testcase name="runTest[0]" classname="flightapp.FlightServiceTest" time="19.411">
+  <testcase name="runTest[0]" classname="flightapp.FlightServiceTest" time="18.92">
     <system-out><![CDATA[Running test setup...
 ... using dbconn.properties for test credentials
 ... resetting database (ie, dropping all tables with suffix: lshibly)
@@ -62,119 +62,25 @@ Starting tests
 Running test file: /homes/iws/lshibly/cse344/FlightsApp/project/cases/no_transaction/search/search_basic.test.txt
 ]]></system-out>
   </testcase>
-  <testcase name="runTest[1]" classname="flightapp.FlightServiceTest" time="23.127">
-    <failure message="Failed: /homes/iws/lshibly/cse344/FlightsApp/project/cases/no_transaction/search/search_indirect.test.txt. Actual outcome were: &#10;---Terminal 0 begin&#10;Created user user1&#10;Logged in as user1&#10;Itinerary 0: 2 flight(s), 215 minutes&#10;ID: 706173 Day: 5 Carrier: AS Number: 788 Origin: Seattle WA Dest: New Orleans LA Duration: 15 Capacity: 5 Price: 232&#10;ID: 722164 Day: 5 Carrier: B6 Number: 400 Origin: New Orleans LA Dest: Boston MA Duration: 200 Capacity: 3 Price: 922&#10;Itinerary 1: 2 flight(s), 230 minutes&#10;ID: 484315 Day: 5 Carrier: UA Number: 703 Origin: Seattle WA Dest: Los Angeles CA Duration: 139 Capacity: 11 Price: 682&#10;ID: 465163 Day: 5 Carrier: UA Number: 168 Origin: Los Angeles CA Dest: Boston MA Duration: 91 Capacity: 13 Price: 551&#10;Itinerary 2: 2 flight(s), 233 minutes&#10;ID: 73027 Day: 5 Carrier: AS Number: 698 Origin: Seattle WA Dest: Los Angeles CA Duration: 142 Capacity: 5 Price: 229&#10;ID: 465163 Day: 5 Carrier: UA Number: 168 Origin: Los Angeles CA Dest: Boston MA Duration: 91 Capacity: 13 Price: 551&#10;Goodbye&#10;---Terminal 0 end&#10;&#10;&#10;Possible outcomes were: &#10;===== Outcome 0 =====&#10;---Terminal 0 begin&#10;Created user user1&#10;Logged in as user1&#10;Itinerary 0: 1 flight(s), 297 minutes&#10;ID: 722227 Day: 5 Carrier: B6 Number: 498 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 10 Price: 747&#10;Itinerary 1: 1 flight(s), 302 minutes&#10;ID: 722276 Day: 5 Carrier: B6 Number: 598 Origin: Seattle WA Dest: Boston MA Duration: 302 Capacity: 1 Price: 154&#10;Itinerary 2: 1 flight(s), 304 minutes&#10;ID: 721199 Day: 5 Carrier: B6 Number: 1698 Origin: Seattle WA Dest: Boston MA Duration: 304 Capacity: 12 Price: 129&#10;Goodbye&#10;---Terminal 0 end&#10;&#10;&#10;" type="java.lang.AssertionError"><![CDATA[java.lang.AssertionError: 
-Failed: /homes/iws/lshibly/cse344/FlightsApp/project/cases/no_transaction/search/search_indirect.test.txt. Actual outcome were: 
----Terminal 0 begin
-Created user user1
-Logged in as user1
-Itinerary 0: 2 flight(s), 215 minutes
-ID: 706173 Day: 5 Carrier: AS Number: 788 Origin: Seattle WA Dest: New Orleans LA Duration: 15 Capacity: 5 Price: 232
-ID: 722164 Day: 5 Carrier: B6 Number: 400 Origin: New Orleans LA Dest: Boston MA Duration: 200 Capacity: 3 Price: 922
-Itinerary 1: 2 flight(s), 230 minutes
-ID: 484315 Day: 5 Carrier: UA Number: 703 Origin: Seattle WA Dest: Los Angeles CA Duration: 139 Capacity: 11 Price: 682
-ID: 465163 Day: 5 Carrier: UA Number: 168 Origin: Los Angeles CA Dest: Boston MA Duration: 91 Capacity: 13 Price: 551
-Itinerary 2: 2 flight(s), 233 minutes
-ID: 73027 Day: 5 Carrier: AS Number: 698 Origin: Seattle WA Dest: Los Angeles CA Duration: 142 Capacity: 5 Price: 229
-ID: 465163 Day: 5 Carrier: UA Number: 168 Origin: Los Angeles CA Dest: Boston MA Duration: 91 Capacity: 13 Price: 551
-Goodbye
----Terminal 0 end
-
-
-Possible outcomes were: 
-===== Outcome 0 =====
----Terminal 0 begin
-Created user user1
-Logged in as user1
-Itinerary 0: 1 flight(s), 297 minutes
-ID: 722227 Day: 5 Carrier: B6 Number: 498 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 10 Price: 747
-Itinerary 1: 1 flight(s), 302 minutes
-ID: 722276 Day: 5 Carrier: B6 Number: 598 Origin: Seattle WA Dest: Boston MA Duration: 302 Capacity: 1 Price: 154
-Itinerary 2: 1 flight(s), 304 minutes
-ID: 721199 Day: 5 Carrier: B6 Number: 1698 Origin: Seattle WA Dest: Boston MA Duration: 304 Capacity: 12 Price: 129
-Goodbye
----Terminal 0 end
-
-
-
-	at flightapp.FlightServiceTest.runTest(FlightServiceTest.java:514)
-]]></failure>
+  <testcase name="runTest[1]" classname="flightapp.FlightServiceTest" time="19.356">
     <system-out><![CDATA[Running test file: /homes/iws/lshibly/cse344/FlightsApp/project/cases/no_transaction/search/search_indirect.test.txt
 ]]></system-out>
   </testcase>
-  <testcase name="runTest[2]" classname="flightapp.FlightServiceTest" time="25.261">
-    <failure message="Failed: /homes/iws/lshibly/cse344/FlightsApp/project/cases/no_transaction/search/search_topk.test.txt. Actual outcome were: &#10;---Terminal 0 begin&#10;Itinerary 0: 2 flight(s), 252 minutes&#10;ID: 1034748 Day: 1 Carrier: WN Number: 392 Origin: Seattle WA Dest: St. Louis MO Duration: 110 Capacity: 19 Price: 431&#10;ID: 1035037 Day: 1 Carrier: WN Number: 392 Origin: St. Louis MO Dest: Boston MA Duration: 142 Capacity: 6 Price: 286&#10;Itinerary 1: 2 flight(s), 257 minutes&#10;ID: 1034748 Day: 1 Carrier: WN Number: 392 Origin: Seattle WA Dest: St. Louis MO Duration: 110 Capacity: 19 Price: 431&#10;ID: 1035038 Day: 1 Carrier: WN Number: 782 Origin: St. Louis MO Dest: Boston MA Duration: 147 Capacity: 9 Price: 964&#10;Itinerary 2: 2 flight(s), 264 minutes&#10;ID: 1034748 Day: 1 Carrier: WN Number: 392 Origin: Seattle WA Dest: St. Louis MO Duration: 110 Capacity: 19 Price: 431&#10;ID: 8905 Day: 1 Carrier: AA Number: 456 Origin: St. Louis MO Dest: Boston MA Duration: 154 Capacity: 18 Price: 624&#10;Itinerary 3: 2 flight(s), 266 minutes&#10;ID: 1034748 Day: 1 Carrier: WN Number: 392 Origin: Seattle WA Dest: St. Louis MO Duration: 110 Capacity: 19 Price: 431&#10;ID: 291441 Day: 1 Carrier: MQ Number: 4497 Origin: St. Louis MO Dest: Boston MA Duration: 156 Capacity: 14 Price: 192&#10;Itinerary 4: 2 flight(s), 267 minutes&#10;ID: 1034748 Day: 1 Carrier: WN Number: 392 Origin: Seattle WA Dest: St. Louis MO Duration: 110 Capacity: 19 Price: 431&#10;ID: 54606 Day: 1 Carrier: AA Number: 2240 Origin: St. Louis MO Dest: Boston MA Duration: 157 Capacity: 8 Price: 287&#10;Itinerary 5: 2 flight(s), 267 minutes&#10;ID: 1034748 Day: 1 Carrier: WN Number: 392 Origin: Seattle WA Dest: St. Louis MO Duration: 110 Capacity: 19 Price: 431&#10;ID: 1035039 Day: 1 Carrier: WN Number: 4551 Origin: St. Louis MO Dest: Boston MA Duration: 157 Capacity: 2 Price: 593&#10;Itinerary 6: 1 flight(s), 297 minutes&#10;ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140&#10;Itinerary 7: 1 flight(s), 297 minutes&#10;ID: 721557 Day: 1 Carrier: B6 Number: 1698 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 8 Price: 980&#10;Itinerary 8: 1 flight(s), 301 minutes&#10;ID: 706671 Day: 1 Carrier: AS Number: 734 Origin: Seattle WA Dest: Boston MA Duration: 301 Capacity: 11 Price: 268&#10;Itinerary 9: 1 flight(s), 303 minutes&#10;ID: 702979 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 303 Capacity: 12 Price: 225&#10;Goodbye&#10;---Terminal 0 end&#10;&#10;&#10;Possible outcomes were: &#10;===== Outcome 0 =====&#10;---Terminal 0 begin&#10;Itinerary 0: 2 flight(s), 252 minutes&#10;ID: 1034748 Day: 1 Carrier: WN Number: 392 Origin: Seattle WA Dest: St. Louis MO Duration: 110 Capacity: 19 Price: 431&#10;ID: 1035037 Day: 1 Carrier: WN Number: 392 Origin: St. Louis MO Dest: Boston MA Duration: 142 Capacity: 6 Price: 286&#10;Itinerary 1: 1 flight(s), 297 minutes&#10;ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140&#10;Itinerary 2: 1 flight(s), 297 minutes&#10;ID: 721557 Day: 1 Carrier: B6 Number: 1698 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 8 Price: 980&#10;Itinerary 3: 1 flight(s), 301 minutes&#10;ID: 706671 Day: 1 Carrier: AS Number: 734 Origin: Seattle WA Dest: Boston MA Duration: 301 Capacity: 11 Price: 268&#10;Itinerary 4: 1 flight(s), 303 minutes&#10;ID: 702979 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 303 Capacity: 12 Price: 225&#10;Itinerary 5: 1 flight(s), 305 minutes&#10;ID: 717866 Day: 1 Carrier: B6 Number: 498 Origin: Seattle WA Dest: Boston MA Duration: 305 Capacity: 3 Price: 946&#10;Itinerary 6: 1 flight(s), 305 minutes&#10;ID: 721338 Day: 1 Carrier: B6 Number: 998 Origin: Seattle WA Dest: Boston MA Duration: 305 Capacity: 3 Price: 816&#10;Itinerary 7: 1 flight(s), 307 minutes&#10;ID: 702969 Day: 1 Carrier: AS Number: 12 Origin: Seattle WA Dest: Boston MA Duration: 307 Capacity: 4 Price: 739&#10;Itinerary 8: 1 flight(s), 310 minutes&#10;ID: 60108 Day: 1 Carrier: AS Number: 12 Origin: Seattle WA Dest: Boston MA Duration: 310 Capacity: 10 Price: 336&#10;Itinerary 9: 1 flight(s), 310 minutes&#10;ID: 717913 Day: 1 Carrier: B6 Number: 598 Origin: Seattle WA Dest: Boston MA Duration: 310 Capacity: 6 Price: 681&#10;Goodbye&#10;---Terminal 0 end&#10;&#10;&#10;" type="java.lang.AssertionError"><![CDATA[java.lang.AssertionError: 
-Failed: /homes/iws/lshibly/cse344/FlightsApp/project/cases/no_transaction/search/search_topk.test.txt. Actual outcome were: 
----Terminal 0 begin
-Itinerary 0: 2 flight(s), 252 minutes
-ID: 1034748 Day: 1 Carrier: WN Number: 392 Origin: Seattle WA Dest: St. Louis MO Duration: 110 Capacity: 19 Price: 431
-ID: 1035037 Day: 1 Carrier: WN Number: 392 Origin: St. Louis MO Dest: Boston MA Duration: 142 Capacity: 6 Price: 286
-Itinerary 1: 2 flight(s), 257 minutes
-ID: 1034748 Day: 1 Carrier: WN Number: 392 Origin: Seattle WA Dest: St. Louis MO Duration: 110 Capacity: 19 Price: 431
-ID: 1035038 Day: 1 Carrier: WN Number: 782 Origin: St. Louis MO Dest: Boston MA Duration: 147 Capacity: 9 Price: 964
-Itinerary 2: 2 flight(s), 264 minutes
-ID: 1034748 Day: 1 Carrier: WN Number: 392 Origin: Seattle WA Dest: St. Louis MO Duration: 110 Capacity: 19 Price: 431
-ID: 8905 Day: 1 Carrier: AA Number: 456 Origin: St. Louis MO Dest: Boston MA Duration: 154 Capacity: 18 Price: 624
-Itinerary 3: 2 flight(s), 266 minutes
-ID: 1034748 Day: 1 Carrier: WN Number: 392 Origin: Seattle WA Dest: St. Louis MO Duration: 110 Capacity: 19 Price: 431
-ID: 291441 Day: 1 Carrier: MQ Number: 4497 Origin: St. Louis MO Dest: Boston MA Duration: 156 Capacity: 14 Price: 192
-Itinerary 4: 2 flight(s), 267 minutes
-ID: 1034748 Day: 1 Carrier: WN Number: 392 Origin: Seattle WA Dest: St. Louis MO Duration: 110 Capacity: 19 Price: 431
-ID: 54606 Day: 1 Carrier: AA Number: 2240 Origin: St. Louis MO Dest: Boston MA Duration: 157 Capacity: 8 Price: 287
-Itinerary 5: 2 flight(s), 267 minutes
-ID: 1034748 Day: 1 Carrier: WN Number: 392 Origin: Seattle WA Dest: St. Louis MO Duration: 110 Capacity: 19 Price: 431
-ID: 1035039 Day: 1 Carrier: WN Number: 4551 Origin: St. Louis MO Dest: Boston MA Duration: 157 Capacity: 2 Price: 593
-Itinerary 6: 1 flight(s), 297 minutes
-ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140
-Itinerary 7: 1 flight(s), 297 minutes
-ID: 721557 Day: 1 Carrier: B6 Number: 1698 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 8 Price: 980
-Itinerary 8: 1 flight(s), 301 minutes
-ID: 706671 Day: 1 Carrier: AS Number: 734 Origin: Seattle WA Dest: Boston MA Duration: 301 Capacity: 11 Price: 268
-Itinerary 9: 1 flight(s), 303 minutes
-ID: 702979 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 303 Capacity: 12 Price: 225
-Goodbye
----Terminal 0 end
-
-
-Possible outcomes were: 
-===== Outcome 0 =====
----Terminal 0 begin
-Itinerary 0: 2 flight(s), 252 minutes
-ID: 1034748 Day: 1 Carrier: WN Number: 392 Origin: Seattle WA Dest: St. Louis MO Duration: 110 Capacity: 19 Price: 431
-ID: 1035037 Day: 1 Carrier: WN Number: 392 Origin: St. Louis MO Dest: Boston MA Duration: 142 Capacity: 6 Price: 286
-Itinerary 1: 1 flight(s), 297 minutes
-ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140
-Itinerary 2: 1 flight(s), 297 minutes
-ID: 721557 Day: 1 Carrier: B6 Number: 1698 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 8 Price: 980
-Itinerary 3: 1 flight(s), 301 minutes
-ID: 706671 Day: 1 Carrier: AS Number: 734 Origin: Seattle WA Dest: Boston MA Duration: 301 Capacity: 11 Price: 268
-Itinerary 4: 1 flight(s), 303 minutes
-ID: 702979 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 303 Capacity: 12 Price: 225
-Itinerary 5: 1 flight(s), 305 minutes
-ID: 717866 Day: 1 Carrier: B6 Number: 498 Origin: Seattle WA Dest: Boston MA Duration: 305 Capacity: 3 Price: 946
-Itinerary 6: 1 flight(s), 305 minutes
-ID: 721338 Day: 1 Carrier: B6 Number: 998 Origin: Seattle WA Dest: Boston MA Duration: 305 Capacity: 3 Price: 816
-Itinerary 7: 1 flight(s), 307 minutes
-ID: 702969 Day: 1 Carrier: AS Number: 12 Origin: Seattle WA Dest: Boston MA Duration: 307 Capacity: 4 Price: 739
-Itinerary 8: 1 flight(s), 310 minutes
-ID: 60108 Day: 1 Carrier: AS Number: 12 Origin: Seattle WA Dest: Boston MA Duration: 310 Capacity: 10 Price: 336
-Itinerary 9: 1 flight(s), 310 minutes
-ID: 717913 Day: 1 Carrier: B6 Number: 598 Origin: Seattle WA Dest: Boston MA Duration: 310 Capacity: 6 Price: 681
-Goodbye
----Terminal 0 end
-
-
-
-	at flightapp.FlightServiceTest.runTest(FlightServiceTest.java:514)
-]]></failure>
+  <testcase name="runTest[2]" classname="flightapp.FlightServiceTest" time="23.525">
     <system-out><![CDATA[Running test file: /homes/iws/lshibly/cse344/FlightsApp/project/cases/no_transaction/search/search_topk.test.txt
+[ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140, ID: 721557 Day: 1 Carrier: B6 Number: 1698 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 8 Price: 980, ID: 706671 Day: 1 Carrier: AS Number: 734 Origin: Seattle WA Dest: Boston MA Duration: 301 Capacity: 11 Price: 268, ID: 702979 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 303 Capacity: 12 Price: 225, ID: 717866 Day: 1 Carrier: B6 Number: 498 Origin: Seattle WA Dest: Boston MA Duration: 305 Capacity: 3 Price: 946, ID: 721338 Day: 1 Carrier: B6 Number: 998 Origin: Seattle WA Dest: Boston MA Duration: 305 Capacity: 3 Price: 816, ID: 702969 Day: 1 Carrier: AS Number: 12 Origin: Seattle WA Dest: Boston MA Duration: 307 Capacity: 4 Price: 739, ID: 60108 Day: 1 Carrier: AS Number: 12 Origin: Seattle WA Dest: Boston MA Duration: 310 Capacity: 10 Price: 336, ID: 717913 Day: 1 Carrier: B6 Number: 598 Origin: Seattle WA Dest: Boston MA Duration: 310 Capacity: 6 Price: 681]
+Hello
 ]]></system-out>
   </testcase>
-  <testcase name="runTest[3]" classname="flightapp.FlightServiceTest" time="21.624">
+  <testcase name="runTest[3]" classname="flightapp.FlightServiceTest" time="18.921">
+    <system-out><![CDATA[Running test file: /homes/iws/lshibly/cse344/FlightsApp/project/cases/no_transaction/search/search_lshibly.test.txt
+]]></system-out>
+  </testcase>
+  <testcase name="runTest[4]" classname="flightapp.FlightServiceTest" time="21.661">
     <system-out><![CDATA[Running test file: /homes/iws/lshibly/cse344/FlightsApp/project/cases/no_transaction/search/search_topk_direct.test.txt
 ]]></system-out>
   </testcase>
-  <testcase name="runTest[4]" classname="flightapp.FlightServiceTest" time="19.566">
+  <testcase name="runTest[5]" classname="flightapp.FlightServiceTest" time="19.948">
     <system-out><![CDATA[Running test file: /homes/iws/lshibly/cse344/FlightsApp/project/cases/no_transaction/search/search_lessThanN.test.txt
 ]]></system-out>
   </testcase>
