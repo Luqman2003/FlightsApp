@@ -5,10 +5,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Runs queries against a back-end database
@@ -20,9 +23,12 @@ public class Query extends QueryAbstract {
   private static final String FLIGHT_CAPACITY_SQL = "SELECT capacity FROM Flights WHERE fid = ?";
   private PreparedStatement flightCapacityStmt;
 
-  //
-  // Instance variables
-  //
+  private static final String CLEAR_SQL = "DELETE FROM ?";
+  private PreparedStatement clearStmt;
+
+  private Map<Integer, List<Flight>> itineraries;
+
+  private int numReservations = 1;
 
   protected Query() throws SQLException, IOException {
     prepareStatements();
@@ -51,6 +57,7 @@ public class Query extends QueryAbstract {
    */
   private void prepareStatements() throws SQLException {
     flightCapacityStmt = conn.prepareStatement(FLIGHT_CAPACITY_SQL);
+    clearStmt = conn.prepareStatement(CLEAR_SQL);
 
     // TODO: YOUR CODE HERE
   }
@@ -96,10 +103,11 @@ public class Query extends QueryAbstract {
       return "Failed to create user\n";
     }
     try {
-      String insertQuery = "INSERT INTO Users_lshibly (Username, Password) VALUES (?, ?);";
+      String insertQuery = "INSERT INTO Users_lshibly (Username, Password, Balance) VALUES (?, ?, ?);";
       PreparedStatement preparedStatement = conn.prepareStatement(insertQuery);
       preparedStatement.setString(1, username);
       preparedStatement.setString(2, password);
+      preparedStatement.setInt(3, initAmount);
 
       int affectedRows = preparedStatement.executeUpdate();
 
@@ -122,6 +130,7 @@ public class Query extends QueryAbstract {
       int numberOfItineraries) {
 
     StringBuffer sb = new StringBuffer();
+    this.itineraries = new HashMap<>();
 
     List<Flight> directFlights = new ArrayList<>();
     List<List<Flight>> indirectFlightItin = new ArrayList<>();
@@ -156,7 +165,6 @@ public class Query extends QueryAbstract {
       if (!directFlight) {
 
         if (num < numberOfItineraries) {
-          System.out.println(directFlights.toString());
           // this means that we didn't query numberOfItineraries' worth of
           // itineraries. So now we are querying to indirect flights as well
           String indirectSearch = "SELECT TOP (?) fid1, fid2, total_time FROM ("
@@ -175,8 +183,6 @@ public class Query extends QueryAbstract {
           indirectStatement.setInt(4, dayOfMonth);
 
           ResultSet indirectFlightSet = indirectStatement.executeQuery();
-
-          System.out.println("Hello");
 
           while (indirectFlightSet.next()) {
             // populate indirectFlightItin
@@ -204,18 +210,25 @@ public class Query extends QueryAbstract {
 
           while (i < directFlights.size() && j < indirectFlightItin.size()) {
 
+            List<Flight> mapValue = new ArrayList<>();
+
             int directFlightTime = directFlights.get(i).time;
             int indirectFlightTime = indirectFlightItin.get(j).get(0).time
                 + indirectFlightItin.get(j).get(1).time;
 
             if (directFlightTime < indirectFlightTime) {
               Flight f1 = directFlights.get(i);
+              mapValue.add(f1);
+              itineraries.put(counter, mapValue);
               sb.append("Itinerary " + counter + ": 1 flight(s), " + directFlightTime
                   + " minutes\n" + f1.toString() + "\n");
               i++;
             } else {
               Flight f1 = indirectFlightItin.get(j).get(0);
               Flight f2 = indirectFlightItin.get(j).get(1);
+              mapValue.add(f1);
+              mapValue.add(f2);
+              itineraries.put(counter, mapValue);
               sb.append("Itinerary " + counter + ": 2 flight(s), " + indirectFlightTime
                   + " minutes\n" + f1.toString() + "\n" + f2.toString() + "\n");
               j++;
@@ -226,6 +239,9 @@ public class Query extends QueryAbstract {
           // Handle remaining direct flights
           while (i < directFlights.size()) {
             Flight f1 = directFlights.get(i);
+            List<Flight> mapValue = new ArrayList<>();
+            mapValue.add(f1);
+            itineraries.put(counter, mapValue);
             int directFlightTime = f1.time;
             sb.append(
                 "Itinerary " + counter + ": 1 flight(s), " + directFlightTime + " minutes\n" + f1.toString() + "\n");
@@ -237,6 +253,10 @@ public class Query extends QueryAbstract {
           while (j < indirectFlightItin.size()) {
             Flight f1 = indirectFlightItin.get(j).get(0);
             Flight f2 = indirectFlightItin.get(j).get(1);
+            List<Flight> mapValue = new ArrayList<>();
+            mapValue.add(f1);
+            mapValue.add(f2);
+            itineraries.put(counter, mapValue);
             int indirectFlightTime = f1.time + f2.time;
             sb.append("Itinerary " + counter + ": 2 flight(s), " + indirectFlightTime + " minutes\n" + f1.toString()
                 + "\n" + f2.toString() + "\n");
@@ -247,6 +267,9 @@ public class Query extends QueryAbstract {
         } else {
           int itinCounter = 0;
           for (Flight flight : directFlights) {
+            List<Flight> mapValue = new ArrayList<>();
+            mapValue.add(flight);
+            itineraries.put(itinCounter, mapValue);
             Flight f = flight;
             sb.append("Itinerary " + itinCounter + ": 1 flight(s), " + f.time
                 + " minutes\n" + f.toString() + "\n");
@@ -258,6 +281,9 @@ public class Query extends QueryAbstract {
         int itinCounter = 0;
         for (Flight flight : directFlights) {
           Flight f = flight;
+          List<Flight> mapValue = new ArrayList<>();
+          mapValue.add(flight);
+          itineraries.put(itinCounter, mapValue);
           sb.append("Itinerary " + itinCounter + ": 1 flight(s), " + f.time
               + " minutes\n" + f.toString() + "\n");
           itinCounter++;
@@ -300,19 +326,19 @@ public class Query extends QueryAbstract {
    * @param fid the flight id
    * @return the origin city for that flight
    */
-  private String getOriginCity(int fid) {
+  private int getDayOfMonth(int fid) {
     try {
-      String originCityQuery = "SELECT origin_city FROM Flights WHERE fid = " + fid + ";";
+      String originCityQuery = "SELECT day_of_month FROM Flights WHERE fid = " + fid + ";";
       Statement originCityStatement = conn.createStatement();
-      ResultSet originCityResult = originCityStatement.executeQuery(originCityQuery);
-      originCityResult.next();
-      String originCity = originCityResult.getString("origin_city");
-      originCityResult.close();
-      return originCity;
+      ResultSet dayOfMonthResult = originCityStatement.executeQuery(originCityQuery);
+      dayOfMonthResult.next();
+      int dayOfMonth = dayOfMonthResult.getInt("day_of_month");
+      dayOfMonthResult.close();
+      return dayOfMonth;
     } catch (Exception e) {
       e.printStackTrace();
     }
-    return null;
+    return -1;
   }
 
   /**
@@ -329,6 +355,27 @@ public class Query extends QueryAbstract {
       destCityResult.next();
       String originCity = destCityResult.getString("dest_city");
       destCityResult.close();
+      return originCity;
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+  /**
+   * Searches for the specific flight and gives the origin city for that flight
+   *
+   * @param fid the flight id
+   * @return the origin city for that flight
+   */
+  private String getOriginCity(int fid) {
+    try {
+      String originCityQuery = "SELECT origin_city FROM Flights WHERE fid = " + fid + ";";
+      Statement originCityStatement = conn.createStatement();
+      ResultSet originCityResult = originCityStatement.executeQuery(originCityQuery);
+      originCityResult.next();
+      String originCity = originCityResult.getString("origin_city");
+      originCityResult.close();
       return originCity;
     } catch (Exception e) {
       e.printStackTrace();
@@ -403,20 +450,219 @@ public class Query extends QueryAbstract {
 
   /* See QueryAbstract.java for javadoc */
   public String transaction_book(int itineraryId) {
-    // TODO: YOUR CODE HERE
-    return "Booking failed\n";
+    // check if a user is logged in first
+    if (currentLoggedInUser != null) {
+      // user is logged in
+      try {
+        // iterate through the itineraries map and check if the itineraryId
+        // passed in is valid
+        for (int key : itineraries.keySet()) {
+          if (key == itineraryId) {
+            // book it and then return a successful book string
+            // if the person has a booking
+            String reservationQuery = "SELECT * FROM Reservations_lshibly WHERE"
+                + " Username = ?;";
+            PreparedStatement prepRes = conn.prepareStatement(reservationQuery);
+            prepRes.setString(1, this.currentLoggedInUser);
+            ResultSet reserveResult = prepRes.executeQuery();
+
+            List<Flight> itineraryFlights = itineraries.get(key);
+
+            // check if the user already has a flight on the same day so iterate
+            // through the ResultSet
+            while (reserveResult.next()) {
+              int fid1 = reserveResult.getInt("fid1");
+              int fid2 = reserveResult.getInt("fid2");
+              if (fid2 == 0) {
+                // itinerary is a direct flight if fid2 is a 0
+                int dayOfMonth = getDayOfMonth(fid1);
+                for (Flight f : itineraryFlights) {
+                  if (f.dayOfMonth == dayOfMonth) {
+                    return "You cannot book two flights in the same day\n";
+                  }
+                }
+              } else {
+                // itinerary this person reserved has a layover
+                int dayOfMonth1 = getDayOfMonth(fid1);
+                int dayOfMonth2 = getDayOfMonth(fid2);
+                for (Flight f : itineraryFlights) {
+                  if (f.dayOfMonth == dayOfMonth1 || f.dayOfMonth == dayOfMonth2) {
+                    return "You cannot book two flights in the same day\n";
+                  }
+                }
+              }
+            }
+
+            reserveResult.close();
+            String insertReservation = "INSERT INTO Reservations_lshibly "
+                + "(ReservationID, Username, fid1, fid2, status) "
+                + "VALUES (?, ?, ?, ?, ?);";
+            PreparedStatement prepareInsert = conn.prepareStatement(insertReservation);
+            prepareInsert.setInt(1, this.numReservations);
+            prepareInsert.setString(2, this.currentLoggedInUser);
+            prepareInsert.setInt(3, itineraryFlights.get(0).fid);
+            if (itineraryFlights.size() > 1) {
+              prepareInsert.setInt(4, itineraryFlights.get(1).fid);
+            } else {
+              prepareInsert.setNull(4, Types.INTEGER);
+            }
+            prepareInsert.setInt(5, 0);
+            prepareInsert.executeUpdate();
+
+            String res = "Booked flight(s), reservation ID: " + this.numReservations
+                + "\n";
+            this.numReservations++;
+            return res;
+
+          }
+        }
+        // if I went through the whole for loop and they didn't have the
+        // itineraryId I wanted, then I return a nonexistent id booking
+        return "No such itinerary " + itineraryId + "\n";
+      } catch (Exception e) {
+        e.printStackTrace();
+        return "Booking failed\n";
+      }
+    }
+    // user is not logged in
+    return "Cannot book reservations, not logged in\n";
   }
 
   /* See QueryAbstract.java for javadoc */
   public String transaction_pay(int reservationId) {
-    // TODO: YOUR CODE HERE
-    return "Failed to pay for reservation " + reservationId + "\n";
+    if (currentLoggedInUser == null) {
+      return "Cannot pay, not logged in\n";
+    }
+    try {
+      String reservationsQuery = "SELECT * FROM Reservations_lshibly WHERE "
+          + "Username = ? AND ReservationID = ?;";
+      PreparedStatement prepRes = conn.prepareStatement(reservationsQuery);
+      prepRes.setString(1, this.currentLoggedInUser);
+      prepRes.setInt(2, reservationId);
+      ResultSet reservations = prepRes.executeQuery();
+      if (!reservations.isBeforeFirst()) {
+        reservations.close();
+        return "Cannot find unpaid reservation " + reservationId + " under user: "
+            + currentLoggedInUser + "\n";
+      }
+      reservations.next();
+      int status = reservations.getInt("status");
+      if (status == 1) {
+        reservations.close();
+        return "Cannot find unpaid reservation " + reservationId + " under user: "
+            + currentLoggedInUser + "\n";
+      }
+      String userBalance = "SELECT Balance FROM Users_lshibly WHERE Username = ?;";
+      PreparedStatement prepBalance = conn.prepareStatement(userBalance);
+      prepBalance.setString(1, this.currentLoggedInUser);
+      ResultSet balanceSet = prepBalance.executeQuery();
+      balanceSet.next();
+      int balance = balanceSet.getInt("Balance");
+      balanceSet.close();
+      if (reservations.getInt("fid2") != 0) {
+        int fid1 = reservations.getInt("fid1");
+        int fid2 = reservations.getInt("fid2");
+        int price = getPrice(fid1) + getPrice(fid2);
+        if (balance < price) {
+          return "User has only " + balance + " in account but itinerary costs "
+              + price + "\n";
+        } else {
+          int remainingBalance = balance - price;
+          // update the users balance by connecting to the database
+          // String loginUpdateQuery = "UPDATE Users_lshibly SET LoggedIn = 1 WHERE
+          // Username = ?;";
+          String updateBalanceQuery = "UPDATE Users_lshibly SET Balance = ? WHERE Username = ?;";
+          PreparedStatement prepUpdate = conn.prepareStatement(updateBalanceQuery);
+
+          prepUpdate.setInt(1, remainingBalance);
+          prepUpdate.setString(2, currentLoggedInUser);
+
+          prepUpdate.executeUpdate();
+
+          String updateReservationStatus = "UPDATE Reservations_lshibly SET status = 1 WHERE ReservationID = ?;";
+          PreparedStatement statusUpdate = conn.prepareStatement(updateReservationStatus);
+          statusUpdate.setInt(1, reservationId);
+
+          statusUpdate.executeUpdate();
+
+          return "Paid reservation: " + reservationId + " remaining balance: " +
+              remainingBalance + "\n";
+        }
+      } else {
+        int fid = reservations.getInt("fid1");
+        int price = getPrice(fid);
+        // check if user has enough balance to pay for the reservation
+        if (balance < price) {
+          return "User has only " + balance + " in account but itinerary costs "
+              + price + "\n";
+        } else {
+          int remainingBalance = balance - price;
+          // update the users balance by connecting to the database
+          // update the users balance by connecting to the database
+          // String loginUpdateQuery = "UPDATE Users_lshibly SET LoggedIn = 1 WHERE
+          // Username = ?;";
+          String updateBalanceQuery = "UPDATE Users_lshibly SET Balance = ? WHERE Username = ?;";
+          PreparedStatement prepUpdate = conn.prepareStatement(updateBalanceQuery);
+          prepUpdate.setInt(1, remainingBalance);
+          prepUpdate.setString(2, currentLoggedInUser);
+
+          prepUpdate.executeUpdate();
+
+          String updateReservationStatus = "UPDATE Reservations_lshibly SET status = 1 WHERE ReservationID = ?;";
+          PreparedStatement statusUpdate = conn.prepareStatement(updateReservationStatus);
+          statusUpdate.setInt(1, reservationId);
+
+          statusUpdate.executeUpdate();
+
+          return "Paid reservation: " + reservationId + " remaining balance: " +
+              remainingBalance + "\n";
+        }
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return "Failed to pay for reservation " + reservationId + "\n";
+    }
   }
 
   /* See QueryAbstract.java for javadoc */
   public String transaction_reservations() {
-    // TODO: YOUR CODE HERE
-    return "Failed to retrieve reservations\n";
+    if (currentLoggedInUser == null) {
+      return "Cannot view reservations, not logged in\n";
+    }
+    try {
+      String reservationsQuery = "SELECT * FROM Reservations_lshibly WHERE Username = ?;";
+      PreparedStatement prepRes = conn.prepareStatement(reservationsQuery);
+      prepRes.setString(1, currentLoggedInUser);
+      ResultSet reservationsResult = prepRes.executeQuery();
+      if (!reservationsResult.isBeforeFirst()) {
+        return "No reservations found\n";
+      }
+      StringBuffer sb = new StringBuffer();
+      while (reservationsResult.next()) {
+        int resId = reservationsResult.getInt("ReservationID");
+        sb.append("Reservation " + resId + " paid: ");
+        if (reservationsResult.getInt("status") == 1) {
+          sb.append("true:\n");
+        } else {
+          sb.append("false:\n");
+        }
+        int fid1 = reservationsResult.getInt("fid1");
+        int fid2 = reservationsResult.getInt("fid2");
+        Flight f1 = new Flight(fid1, getDayOfMonth(fid1), getCarrierId(fid1), getFlightNum(fid1), getOriginCity(fid1),
+            getDestCity(fid1), getTime(fid1), checkFlightCapacity(fid1), getPrice(fid1));
+        sb.append(f1.toString() + "\n");
+        if (fid2 != 0) {
+          Flight f2 = new Flight(fid2, getDayOfMonth(fid2), getCarrierId(fid2), getFlightNum(fid2), getOriginCity(fid2),
+              getDestCity(fid2), getTime(fid2), checkFlightCapacity(fid2), getPrice(fid2));
+          sb.append(f2.toString() + "\n");
+        }
+      }
+      reservationsResult.close();
+      return sb.toString();
+    } catch (SQLException e) {
+      e.printStackTrace();
+      return "Failed to retrieve reservations\n";
+    }
   }
 
   /**
