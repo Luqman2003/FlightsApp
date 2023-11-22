@@ -1,0 +1,23 @@
+The 3 standard reflection questions, but specific to your experience with M2:
+1. What is one thing you learned?
+  a. I learned how to deal with concurrent accesses to the database by using locks
+     and transactions
+2. What is one thing that surprised you?
+  b. I thought that implementing the transactions would be really simply. Just set
+     autocommit to false and then commit if it works out and rollback if there is an error.
+     However, as I implemented them, there were so many new errors that the no_transaction cases
+     didn't handle. So I had to fix them because of the transactions showing them to me.
+3. What is one question you still have after doing this assignment?
+  c. There are cases in my code where there is a deadlock even though I believe there shouldn't be.
+     I would like to know how the deadlocks occur in my implementation (especially book).
+Were you able to make any progress on your “one question I still have” from M1?  If so, please describe how it happened (eg, did you stumble upon the answer, did it come up in lecture, did you read about it yourself, etc).  If you did not, describe how you might find an answer to it.
+  d. Since m2 didn't really invlove the hashing and salting in the assignment, I wasn't able to make
+     progress on it. However, I intend on getting it down soon.
+Consider the following conceptual schema and table schema for a company's organizational chart:
+Now that you’ve seen how to use Java code to add additional verifications on data that’s saved into a database, how would you represent the CEO in that schema?  Specifically, would you make the manager field NULLable or would you create a special “THIS IS NOT A REAL MANAGER” manager for the CEO?  In other words, which logic would you put in the schema and which logic would you put in Java?
+  e. In the schema, the logic I would implement is that the ManagerEmplID would be NULLable.
+     Similar to how fid2 was NULLable in my implementation for my schema. In java, the logic
+     for this would be just to check if the ManagerEmplID is == 0. If it is, then I know I am
+     dealing with the CEO in this tuple.
+how many hours you spent on M2 (do not include M0+M1), how many hours you perceived to be valuable, and how many students (if any!) you collaborated with
+  f. 20 hours

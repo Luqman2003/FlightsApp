@@ -37,15 +37,15 @@
 --   day_of_week varchar(9)
 --   );
 CREATE TABLE Users_lshibly (
-  Username VARCHAR(20) PRIMARY KEY,
-  Password VARBINARY(144),
+  Username VARCHAR(255) PRIMARY KEY,
+  Password VARBINARY(255),
   LoggedIn int,
   Balance REAL
 );
 
 CREATE TABLE Reservations_lshibly (
   ReservationID int PRIMARY KEY,
-  Username VARCHAR(20) REFERENCES Users_lshibly(Username),
+  Username VARCHAR(255) REFERENCES Users_lshibly(Username),
   fid1 int REFERENCES FLIGHTS(fid),
   fid2 int NULL REFERENCES FLIGHTS(fid),
   status int -- 'Paid' or 'Unpaid' 0 is unpaid and 1 is paid

@@ -7,10 +7,8 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import static flightapp.PasswordUtils.*;
 
@@ -39,23 +37,20 @@ public class Query extends QueryAbstract {
   private static final String INSERT_USER = "INSERT INTO Users_lshibly (Username, Password, Balance) VALUES (?, ?, ?);";
   private PreparedStatement insertStmt;
 
-  private static final String DIRECT_FLIGHT = "SELECT TOP (?) fid AS fid1, NULL AS fid2, actual_time AS total_time " +
-      "FROM FLIGHTS " +
-      "WHERE origin_city = ? AND dest_city = ? AND day_of_month = ? AND canceled = 0 " +
-      "ORDER BY total_time ASC, fid ASC";
-
+  private static final String DIRECT_FLIGHT = "SELECT TOP (?) fid AS fid1, NULL AS fid2, actual_time AS total_time "
+      + "FROM FLIGHTS "
+      + "WHERE origin_city = ? AND dest_city = ? AND day_of_month = ? AND canceled = 0 "
+      + "ORDER BY total_time ASC";
   private PreparedStatement directStmt;
 
-  private static final String INDIRECT_FLIGHTS = "SELECT TOP (?) fid1, fid2, total_time FROM (" +
-      "SELECT " +
-      "f1.fid AS fid1, f2.fid AS fid2, f1.actual_time + f2.actual_time AS total_time " +
-      "FROM FLIGHTS AS f1 " +
-      "JOIN FLIGHTS AS f2 ON f1.dest_city = f2.origin_city AND f1.day_of_month = f2.day_of_month " +
-      "WHERE f1.origin_city = ? AND f2.dest_city = ? " +
-      "AND f1.day_of_month = ? " +
-      "AND f1.canceled = 0 AND f2.canceled = 0) AS combined_results " +
-      "ORDER BY total_time ASC, fid1 ASC, fid2 ASC";
-
+  private static final String INDIRECT_FLIGHTS = "SELECT TOP (?) fid1, fid2, total_time FROM ("
+      + "SELECT "
+      + "f1.fid AS fid1, f2.fid AS fid2, f1.actual_time + f2.actual_time AS total_time "
+      + "FROM FLIGHTS AS f1 "
+      + "JOIN FLIGHTS AS f2 ON f1.dest_city = f2.origin_city AND f1.day_of_month = f2.day_of_month "
+      + "WHERE f1.origin_city = ? AND f2.dest_city = ? "
+      + "AND f1.day_of_month = ? "
+      + "AND f1.canceled = 0 AND f2.canceled = 0) AS combined_results ORDER BY total_time ASC";
   private PreparedStatement indirectStmt;
 
   private static final String SELECT_PRICE = "SELECT price FROM Flights WHERE fid = ?;";
@@ -170,17 +165,16 @@ public class Query extends QueryAbstract {
 
   /* See QueryAbstract.java for javadoc */
   public String transaction_login(String username, String password) {
-
-    if (currentLoggedInUser != null) {
-      return "User already logged in\n";
-    }
-
     try {
+      if (currentLoggedInUser != null) {
+        return "User already logged in\n";
+      }
+
+      byte[] hash = null;
+
       usersStmt.clearParameters();
       usersStmt.setString(1, username);
       ResultSet usersResults = usersStmt.executeQuery();
-
-      byte[] hash = null;
 
       while (usersResults.next()) {
         hash = usersResults.getBytes("Password");
@@ -256,10 +250,6 @@ public class Query extends QueryAbstract {
       boolean directFlight, int dayOfMonth,
       int numberOfItineraries) {
 
-    if (numberOfItineraries < 0) {
-      return "Failed to search\n";
-    }
-
     StringBuffer sb = new StringBuffer();
     this.itineraries = new HashMap<>();
 
@@ -316,9 +306,6 @@ public class Query extends QueryAbstract {
 
             indirectFlightItin.add(temp);
 
-          }
-          if (indirectFlightItin.isEmpty() && num == 0) {
-            return "No flights match your selection\n";
           }
 
           indirectFlightSet.close();
@@ -397,9 +384,6 @@ public class Query extends QueryAbstract {
           }
         }
       } else {
-        if (num == 0) {
-          return "No flights match your selection\n";
-        }
         int itinCounter = 0;
         for (Flight flight : directFlights) {
           Flight f = flight;
@@ -426,9 +410,6 @@ public class Query extends QueryAbstract {
     // check if a user is logged in first
     if (currentLoggedInUser != null) {
       // user is logged in
-      if (itineraryId < 0) {
-        return "No such itinerary " + itineraryId + "\n";
-      }
       try {
         conn.setAutoCommit(false);
 
@@ -448,34 +429,18 @@ public class Query extends QueryAbstract {
             ResultSet reserveResult = userResStmt.executeQuery();
 
             List<Flight> itineraryFlights = itineraries.get(key);
-            Set<Integer> bookingDays = new HashSet<>();
 
-            // Iterate through all flights in the current itinerary and add their days to a
-            // set
-            for (Flight flight : itineraryFlights) {
-              bookingDays.add(flight.dayOfMonth);
-            }
-
-            // Iterate through the ResultSet to check for day conflicts
+            // check if the user already has a flight on the same day so iterate
+            // through the ResultSet
             while (reserveResult.next()) {
               int fid1 = reserveResult.getInt("fid1");
-              int dayOfMonth1 = getDayOfMonth(fid1);
-              if (bookingDays.contains(dayOfMonth1)) {
-                reserveResult.close();
+              int fid2 = reserveResult.getInt("fid2");
+
+              if (hasReserved(this.currentLoggedInUser, fid1, fid2)) {
+                // return "Booking failed\n";
                 conn.rollback();
                 conn.setAutoCommit(true);
                 return "You cannot book two flights in the same day\n";
-              }
-
-              int fid2 = reserveResult.getInt("fid2");
-              if (fid2 != 0) {
-                int dayOfMonth2 = getDayOfMonth(fid2);
-                if (bookingDays.contains(dayOfMonth2)) {
-                  reserveResult.close();
-                  conn.rollback();
-                  conn.setAutoCommit(true);
-                  return "You cannot book two flights in the same day\n";
-                }
               }
             }
 
