@@ -1,0 +1,11 @@
+# Verify we don't make an account with negative balance
+
+# commands to execute:
+create user1 user1 -50
+quit
+*
+
+# expected output from those commands:
+Failed to create user
+Goodbye
+*

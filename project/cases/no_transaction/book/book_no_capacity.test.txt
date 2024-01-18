@@ -1,0 +1,114 @@
+# commands to execute:
+create user1 user1 100
+login user1 user1
+search "New York NY" "Los Angeles CA" 1 6 50
+book 41
+quit
+*
+
+# expected output:
+Created user user1
+Logged in as user1
+Itinerary 0: 1 flight(s), 328 minutes
+ID: 1028863 Day: 6 Carrier: VX Number: 399 Origin: New York NY Dest: Los Angeles CA Duration: 328 Capacity: 14 Price: 734
+Itinerary 1: 1 flight(s), 331 minutes
+ID: 676357 Day: 6 Carrier: AA Number: 33 Origin: New York NY Dest: Los Angeles CA Duration: 331 Capacity: 19 Price: 510
+Itinerary 2: 1 flight(s), 332 minutes
+ID: 675491 Day: 6 Carrier: AA Number: 3 Origin: New York NY Dest: Los Angeles CA Duration: 332 Capacity: 10 Price: 746
+Itinerary 3: 1 flight(s), 333 minutes
+ID: 736041 Day: 6 Carrier: B6 Number: 23 Origin: New York NY Dest: Los Angeles CA Duration: 333 Capacity: 15 Price: 615
+Itinerary 4: 1 flight(s), 338 minutes
+ID: 736146 Day: 6 Carrier: B6 Number: 223 Origin: New York NY Dest: Los Angeles CA Duration: 338 Capacity: 3 Price: 456
+Itinerary 5: 1 flight(s), 338 minutes
+ID: 1018172 Day: 6 Carrier: UA Number: 703 Origin: New York NY Dest: Los Angeles CA Duration: 338 Capacity: 19 Price: 202
+Itinerary 6: 1 flight(s), 341 minutes
+ID: 1028867 Day: 6 Carrier: VX Number: 411 Origin: New York NY Dest: Los Angeles CA Duration: 341 Capacity: 16 Price: 653
+Itinerary 7: 1 flight(s), 342 minutes
+ID: 631698 Day: 6 Carrier: AA Number: 181 Origin: New York NY Dest: Los Angeles CA Duration: 342 Capacity: 6 Price: 471
+Itinerary 8: 1 flight(s), 343 minutes
+ID: 1886 Day: 6 Carrier: AA Number: 181 Origin: New York NY Dest: Los Angeles CA Duration: 343 Capacity: 11 Price: 430
+Itinerary 9: 1 flight(s), 343 minutes
+ID: 132986 Day: 6 Carrier: DL Number: 2059 Origin: New York NY Dest: Los Angeles CA Duration: 343 Capacity: 5 Price: 981
+Itinerary 10: 1 flight(s), 343 minutes
+ID: 755197 Day: 6 Carrier: DL Number: 472 Origin: New York NY Dest: Los Angeles CA Duration: 343 Capacity: 1 Price: 943
+Itinerary 11: 1 flight(s), 343 minutes
+ID: 1028866 Day: 6 Carrier: VX Number: 407 Origin: New York NY Dest: Los Angeles CA Duration: 343 Capacity: 19 Price: 817
+Itinerary 12: 1 flight(s), 344 minutes
+ID: 409 Day: 6 Carrier: AA Number: 19 Origin: New York NY Dest: Los Angeles CA Duration: 344 Capacity: 13 Price: 272
+Itinerary 13: 1 flight(s), 344 minutes
+ID: 460883 Day: 6 Carrier: UA Number: 19 Origin: New York NY Dest: Los Angeles CA Duration: 344 Capacity: 8 Price: 954
+Itinerary 14: 1 flight(s), 347 minutes
+ID: 461063 Day: 6 Carrier: UA Number: 25 Origin: New York NY Dest: Los Angeles CA Duration: 347 Capacity: 14 Price: 888
+Itinerary 15: 1 flight(s), 348 minutes
+ID: 1276 Day: 6 Carrier: AA Number: 117 Origin: New York NY Dest: Los Angeles CA Duration: 348 Capacity: 19 Price: 416
+Itinerary 16: 1 flight(s), 348 minutes
+ID: 675909 Day: 6 Carrier: AA Number: 19 Origin: New York NY Dest: Los Angeles CA Duration: 348 Capacity: 13 Price: 713
+Itinerary 17: 1 flight(s), 348 minutes
+ID: 736096 Day: 6 Carrier: B6 Number: 123 Origin: New York NY Dest: Los Angeles CA Duration: 348 Capacity: 8 Price: 309
+Itinerary 18: 1 flight(s), 349 minutes
+ID: 133004 Day: 6 Carrier: DL Number: 2071 Origin: New York NY Dest: Los Angeles CA Duration: 349 Capacity: 19 Price: 428
+Itinerary 19: 1 flight(s), 349 minutes
+ID: 460698 Day: 6 Carrier: UA Number: 11 Origin: New York NY Dest: Los Angeles CA Duration: 349 Capacity: 1 Price: 120
+Itinerary 20: 1 flight(s), 349 minutes
+ID: 631484 Day: 6 Carrier: AA Number: 171 Origin: New York NY Dest: Los Angeles CA Duration: 349 Capacity: 14 Price: 970
+Itinerary 21: 1 flight(s), 351 minutes
+ID: 736200 Day: 6 Carrier: B6 Number: 323 Origin: New York NY Dest: Los Angeles CA Duration: 351 Capacity: 14 Price: 288
+Itinerary 22: 1 flight(s), 352 minutes
+ID: 736246 Day: 6 Carrier: B6 Number: 423 Origin: New York NY Dest: Los Angeles CA Duration: 352 Capacity: 17 Price: 957
+Itinerary 23: 1 flight(s), 352 minutes
+ID: 755161 Day: 6 Carrier: DL Number: 422 Origin: New York NY Dest: Los Angeles CA Duration: 352 Capacity: 12 Price: 243
+Itinerary 24: 1 flight(s), 355 minutes
+ID: 755162 Day: 6 Carrier: DL Number: 423 Origin: New York NY Dest: Los Angeles CA Duration: 355 Capacity: 19 Price: 164
+Itinerary 25: 1 flight(s), 356 minutes
+ID: 2278 Day: 6 Carrier: AA Number: 201 Origin: New York NY Dest: Los Angeles CA Duration: 356 Capacity: 12 Price: 194
+Itinerary 26: 1 flight(s), 356 minutes
+ID: 635372 Day: 6 Carrier: AA Number: 133 Origin: New York NY Dest: Los Angeles CA Duration: 356 Capacity: 2 Price: 406
+Itinerary 27: 1 flight(s), 356 minutes
+ID: 736505 Day: 6 Carrier: B6 Number: 1023 Origin: New York NY Dest: Los Angeles CA Duration: 356 Capacity: 3 Price: 764
+Itinerary 28: 1 flight(s), 356 minutes
+ID: 1017916 Day: 6 Carrier: UA Number: 443 Origin: New York NY Dest: Los Angeles CA Duration: 356 Capacity: 8 Price: 674
+Itinerary 29: 1 flight(s), 357 minutes
+ID: 68 Day: 6 Carrier: AA Number: 3 Origin: New York NY Dest: Los Angeles CA Duration: 357 Capacity: 3 Price: 773
+Itinerary 30: 1 flight(s), 357 minutes
+ID: 460790 Day: 6 Carrier: UA Number: 15 Origin: New York NY Dest: Los Angeles CA Duration: 357 Capacity: 15 Price: 443
+Itinerary 31: 1 flight(s), 358 minutes
+ID: 714 Day: 6 Carrier: AA Number: 33 Origin: New York NY Dest: Los Angeles CA Duration: 358 Capacity: 15 Price: 655
+Itinerary 32: 1 flight(s), 358 minutes
+ID: 487917 Day: 6 Carrier: UA Number: 839 Origin: New York NY Dest: Los Angeles CA Duration: 358 Capacity: 17 Price: 402
+Itinerary 33: 1 flight(s), 359 minutes
+ID: 460821 Day: 6 Carrier: UA Number: 17 Origin: New York NY Dest: Los Angeles CA Duration: 359 Capacity: 11 Price: 272
+Itinerary 34: 1 flight(s), 359 minutes
+ID: 634181 Day: 6 Carrier: AA Number: 293 Origin: New York NY Dest: Los Angeles CA Duration: 359 Capacity: 19 Price: 745
+Itinerary 35: 1 flight(s), 359 minutes
+ID: 675967 Day: 6 Carrier: AA Number: 21 Origin: New York NY Dest: Los Angeles CA Duration: 359 Capacity: 2 Price: 902
+Itinerary 36: 1 flight(s), 359 minutes
+ID: 755163 Day: 6 Carrier: DL Number: 424 Origin: New York NY Dest: Los Angeles CA Duration: 359 Capacity: 6 Price: 969
+Itinerary 37: 1 flight(s), 360 minutes
+ID: 132929 Day: 6 Carrier: DL Number: 2013 Origin: New York NY Dest: Los Angeles CA Duration: 360 Capacity: 14 Price: 173
+Itinerary 38: 1 flight(s), 360 minutes
+ID: 675434 Day: 6 Carrier: AA Number: 1 Origin: New York NY Dest: Los Angeles CA Duration: 360 Capacity: 15 Price: 104
+Itinerary 39: 1 flight(s), 360 minutes
+ID: 1028870 Day: 6 Carrier: VX Number: 415 Origin: New York NY Dest: Los Angeles CA Duration: 360 Capacity: 10 Price: 574
+Itinerary 40: 1 flight(s), 361 minutes
+ID: 238722 Day: 6 Carrier: HP Number: 301 Origin: New York NY Dest: Los Angeles CA Duration: 361 Capacity: 3 Price: 292
+Itinerary 41: 1 flight(s), 362 minutes
+ID: 132982 Day: 6 Carrier: DL Number: 2057 Origin: New York NY Dest: Los Angeles CA Duration: 362 Capacity: 0 Price: 691
+Itinerary 42: 1 flight(s), 363 minutes
+ID: 755160 Day: 6 Carrier: DL Number: 420 Origin: New York NY Dest: Los Angeles CA Duration: 363 Capacity: 11 Price: 597
+Itinerary 43: 1 flight(s), 364 minutes
+ID: 6 Day: 6 Carrier: AA Number: 1 Origin: New York NY Dest: Los Angeles CA Duration: 364 Capacity: 0 Price: 979
+Itinerary 44: 1 flight(s), 364 minutes
+ID: 1018005 Day: 6 Carrier: UA Number: 535 Origin: New York NY Dest: Los Angeles CA Duration: 364 Capacity: 5 Price: 903
+Itinerary 45: 1 flight(s), 365 minutes
+ID: 1028869 Day: 6 Carrier: VX Number: 413 Origin: New York NY Dest: Los Angeles CA Duration: 365 Capacity: 1 Price: 571
+Itinerary 46: 1 flight(s), 369 minutes
+ID: 2128 Day: 6 Carrier: AA Number: 193 Origin: New York NY Dest: Los Angeles CA Duration: 369 Capacity: 4 Price: 672
+Itinerary 47: 1 flight(s), 370 minutes
+ID: 132950 Day: 6 Carrier: DL Number: 2027 Origin: New York NY Dest: Los Angeles CA Duration: 370 Capacity: 7 Price: 991
+Itinerary 48: 1 flight(s), 370 minutes
+ID: 755181 Day: 6 Carrier: DL Number: 447 Origin: New York NY Dest: Los Angeles CA Duration: 370 Capacity: 12 Price: 825
+Itinerary 49: 1 flight(s), 372 minutes
+ID: 636287 Day: 6 Carrier: AA Number: 255 Origin: New York NY Dest: Los Angeles CA Duration: 372 Capacity: 6 Price: 253
+Booking failed
+Goodbye
+*

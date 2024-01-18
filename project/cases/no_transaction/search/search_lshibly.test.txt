@@ -1,0 +1,13 @@
+# Verify that we only show k amount of itineraries even though there are more
+# in the dataset that fit the query
+
+# commands:
+search "Seattle WA" "New York NY" 1 1 1
+quit
+*
+
+# expected command output:
+Itinerary 0: 1 flight(s), 284 minutes
+ID: 717739 Day: 1 Carrier: B6 Number: 264 Origin: Seattle WA Dest: New York NY Duration: 284 Capacity: 7 Price: 846
+Goodbye
+*

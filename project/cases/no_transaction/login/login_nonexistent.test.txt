@@ -1,0 +1,11 @@
+# Verify that a user cannot log in to a non-existent account.
+
+# commands to execute:
+login unknownUser wrongPassword
+quit
+*
+
+# expected output:
+Login failed
+Goodbye
+*
